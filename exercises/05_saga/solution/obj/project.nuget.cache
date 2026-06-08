@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "dgSpecHash": "+HAinadIqZ8=",
+  "success": true,
+  "projectFilePath": "/Users/marcusmerrell/Projects/temporal-dotnet-hands-on/exercises/05_saga/solution/VehicleTransaction.csproj",
+  "expectedPackageFiles": [
+    "/Users/marcusmerrell/.nuget/packages/google.protobuf/3.26.1/google.protobuf.3.26.1.nupkg.sha512",
+    "/Users/marcusmerrell/.nuget/packages/microsoft.extensions.logging.abstractions/2.2.0/microsoft.extensions.logging.abstractions.2.2.0.nupkg.sha512",
+    "/Users/marcusmerrell/.nuget/packages/nexusrpc/0.2.0/nexusrpc.0.2.0.nupkg.sha512",
+    "/Users/marcusmerrell/.nuget/packages/temporalio/1.11.0/temporalio.1.11.0.nupkg.sha512",
+    "/Users/marcusmerrell/.nuget/packages/microsoft.netcore.app.ref/9.0.12/microsoft.netcore.app.ref.9.0.12.nupkg.sha512",
+    "/Users/marcusmerrell/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.12/microsoft.aspnetcore.app.ref.9.0.12.nupkg.sha512",
+    "/Users/marcusmerrell/.nuget/packages/microsoft.netcore.app.host.osx-arm64/9.0.12/microsoft.netcore.app.host.osx-arm64.9.0.12.nupkg.sha512"
+  ],
+  "logs": []
+}

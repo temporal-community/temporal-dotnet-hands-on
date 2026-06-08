@@ -1,4 +1,4 @@
-// Program.cs
+// Program.cs — run as worker or starter
 //
 // Three modes:
 //   dotnet run -- worker          start the worker
@@ -25,13 +25,14 @@ if (mode == "worker")
     Console.WriteLine("[Worker] Connected. Polling vehicle-transaction task queue...");
     Console.WriteLine("[Worker] Press Ctrl+C to stop.\n");
 
-    await worker.ExecuteAsync(ct => Task.Delay(Timeout.Infinite, ct));
+    using var cts = new CancellationTokenSource();
+    Console.CancelKeyPress += (_, e) => { e.Cancel = true; cts.Cancel(); };
+    await worker.ExecuteAsync(cts.Token);
 }
 else if (mode == "starter")
 {
     var client = await TemporalClient.ConnectAsync(new("localhost:7233"));
 
-    // High-value order — will trigger the manager approval gate
     var order = new VehicleOrder(
         VehicleId:     "VIN-2026-COXAUTO-004",
         BuyerId:       "buyer-sam-k",
@@ -74,9 +75,9 @@ else if (mode == "query" && args.Length > 1)
     var handle = client.GetWorkflowHandle(workflowId);
     var status = await handle.QueryAsync<WorkflowStatus>(
         wf => ((VehicleTransactionWorkflow)(object)wf).GetStatus());
-    Console.WriteLine($"[Query] Stage:                  {status.Stage}");
-    Console.WriteLine($"[Query] Approval required:      {status.ManagerApprovalRequired}");
-    Console.WriteLine($"[Query] Approved:               {status.ManagerApproved}");
+    Console.WriteLine($"[Query] Stage:              {status.Stage}");
+    Console.WriteLine($"[Query] Approval required:  {status.ManagerApprovalRequired}");
+    Console.WriteLine($"[Query] Approved:           {status.ManagerApproved}");
 }
 else
 {
