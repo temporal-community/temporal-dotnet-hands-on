@@ -54,6 +54,6 @@ else
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"[Starter] Transaction failed (compensations ran): {ex.Message}");
+        Console.WriteLine($"[Starter] Transaction failed (any committed steps were compensated): {ex.Message}");
     }
 }

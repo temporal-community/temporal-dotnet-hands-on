@@ -2,6 +2,7 @@
 
 using Temporalio.Workflows;
 using Temporalio.Common;
+using Microsoft.Extensions.Logging;
 
 namespace VehicleTransaction;
 
@@ -13,6 +14,9 @@ public class VehicleTransactionWorkflow
         StartToCloseTimeout = TimeSpan.FromSeconds(30),
         RetryPolicy = new RetryPolicy
         {
+            // Cap attempts so a persistently failing step eventually gives up
+            // and triggers compensation, instead of retrying forever.
+            MaximumAttempts    = 3,
             InitialInterval    = TimeSpan.FromSeconds(1),
             MaximumInterval    = TimeSpan.FromSeconds(30),
             BackoffCoefficient = 2.0f,
@@ -70,9 +74,20 @@ public class VehicleTransactionWorkflow
         }
         catch (Exception)
         {
-            // Run compensations in reverse order (stack unwinds naturally)
+            // Run compensations in reverse order (stack unwinds naturally).
+            // Isolate each one so a failed compensation doesn't prevent the
+            // remaining compensations from running.
             foreach (var compensate in compensations)
-                await compensate();
+            {
+                try
+                {
+                    await compensate();
+                }
+                catch (Exception compErr)
+                {
+                    Workflow.Logger.LogError(compErr, "Compensation failed");
+                }
+            }
 
             throw;
         }

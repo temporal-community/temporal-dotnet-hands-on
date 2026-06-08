@@ -1,8 +1,8 @@
 // VehicleTransactionWorkflow.cs
 //
-// The transaction now has three steps: payment, title transfer, and
-// document generation. If any step fails after payment has succeeded,
-// we need to undo the completed steps in reverse order.
+// The transaction has three steps: fraud check, payment, and title transfer.
+// If any step fails after payment has succeeded, we need to undo the
+// completed steps in reverse order.
 //
 // Your job: implement the Saga pattern using a compensation stack.
 
@@ -19,6 +19,9 @@ public class VehicleTransactionWorkflow
         StartToCloseTimeout = TimeSpan.FromSeconds(30),
         RetryPolicy = new RetryPolicy
         {
+            // Cap attempts so a persistently failing step eventually gives up
+            // and triggers compensation, instead of retrying forever.
+            MaximumAttempts    = 3,
             InitialInterval    = TimeSpan.FromSeconds(1),
             MaximumInterval    = TimeSpan.FromSeconds(30),
             BackoffCoefficient = 2.0f,
