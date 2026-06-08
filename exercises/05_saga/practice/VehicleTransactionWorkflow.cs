@@ -14,6 +14,8 @@ namespace VehicleTransaction;
 [Workflow]
 public class VehicleTransactionWorkflow
 {
+    // MaximumAttempts = 3 so title transfer (60% failure rate) exhausts
+    // retries quickly and triggers compensations — that's the point of this exercise.
     private static readonly ActivityOptions DefaultOptions = new()
     {
         StartToCloseTimeout = TimeSpan.FromSeconds(30),
@@ -23,7 +25,7 @@ public class VehicleTransactionWorkflow
             // and triggers compensation, instead of retrying forever.
             MaximumAttempts    = 3,
             InitialInterval    = TimeSpan.FromSeconds(1),
-            MaximumInterval    = TimeSpan.FromSeconds(30),
+            MaximumInterval    = TimeSpan.FromSeconds(10),
             BackoffCoefficient = 2.0f,
         }
     };
@@ -35,7 +37,7 @@ public class VehicleTransactionWorkflow
         StartToCloseTimeout = TimeSpan.FromSeconds(30),
         RetryPolicy = new RetryPolicy
         {
-            MaximumAttempts = 3,
+            MaximumAttempts    = 3,
             InitialInterval    = TimeSpan.FromSeconds(1),
             MaximumInterval    = TimeSpan.FromSeconds(10),
             BackoffCoefficient = 2.0f,

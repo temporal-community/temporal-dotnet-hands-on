@@ -18,7 +18,7 @@ public class VehicleTransactionWorkflow
             // and triggers compensation, instead of retrying forever.
             MaximumAttempts    = 3,
             InitialInterval    = TimeSpan.FromSeconds(1),
-            MaximumInterval    = TimeSpan.FromSeconds(30),
+            MaximumInterval    = TimeSpan.FromSeconds(10),
             BackoffCoefficient = 2.0f,
         }
     };
