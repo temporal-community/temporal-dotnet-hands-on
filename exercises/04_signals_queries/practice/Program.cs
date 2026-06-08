@@ -65,7 +65,7 @@ else if (mode == "approve" && args.Length > 1)
     var client = await TemporalClient.ConnectAsync(new("localhost:7233"));
     var workflowId = args[1];
     var handle = client.GetWorkflowHandle(workflowId);
-    await handle.SignalAsync<VehicleTransactionWorkflow>(wf => wf.ApproveTransactionAsync());
+    await handle.SignalAsync("ApproveTransaction", Array.Empty<object?>());
     Console.WriteLine($"[Signal] Sent ApproveTransaction to {workflowId}");
 }
 else if (mode == "query" && args.Length > 1)
@@ -73,8 +73,7 @@ else if (mode == "query" && args.Length > 1)
     var client = await TemporalClient.ConnectAsync(new("localhost:7233"));
     var workflowId = args[1];
     var handle = client.GetWorkflowHandle(workflowId);
-    var status = await handle.QueryAsync<WorkflowStatus>(
-        wf => ((VehicleTransactionWorkflow)(object)wf).GetStatus());
+    var status = await handle.QueryAsync<WorkflowStatus>("GetStatus", new List<object?>());
     Console.WriteLine($"[Query] Stage:              {status.Stage}");
     Console.WriteLine($"[Query] Approval required:  {status.ManagerApprovalRequired}");
     Console.WriteLine($"[Query] Approved:           {status.ManagerApproved}");
