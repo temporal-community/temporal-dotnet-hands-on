@@ -27,7 +27,9 @@ if (mode == "worker")
     Console.WriteLine("[Worker] Connected. Polling vehicle-transaction task queue...");
     Console.WriteLine("[Worker] Press Ctrl+C to stop.\n");
 
-    await worker.ExecuteAsync(ct => Task.Delay(Timeout.Infinite, ct));
+    using var cts = new CancellationTokenSource();
+    Console.CancelKeyPress += (_, e) => { e.Cancel = true; cts.Cancel(); };
+    await worker.ExecuteAsync(cts.Token);
 }
 else
 {
