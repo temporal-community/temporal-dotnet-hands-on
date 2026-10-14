@@ -136,12 +136,21 @@ public class LoanUnderwritingWorkflow
         //            () => _decision is not null,
         //            EscalationThreshold);
         //
-        //   b) If it timed out: set _escalated = true, set _stage = "escalated",
-        //      and log a warning with Workflow.Logger.LogWarning.
+        //   b) If it timed out, escalate — then keep waiting. Both steps go
+        //      inside the same if:
+        //        if (!decided)
+        //        {
+        //            _escalated = true;
+        //            _stage     = "escalated";
         //
-        //   c) Then wait again — this time with NO timeout, so the workflow
-        //      waits as long as it takes:
-        //        await Workflow.WaitConditionAsync(() => _decision is not null);
+        //            Workflow.Logger.LogWarning(
+        //                "No decision on {ApplicationId} after {Minutes} minutes — escalating. Still waiting.",
+        //                app.ApplicationId, EscalationThreshold.TotalMinutes);
+        //
+        //   c)       // ...and wait again, this time with NO timeout, so the
+        //            // workflow waits as long as it takes:
+        //            await Workflow.WaitConditionAsync(() => _decision is not null);
+        //        }
         //
         //      We deliberately do not fail or auto-decline. An application
         //      nobody looked at is not a declined application. The timer raises

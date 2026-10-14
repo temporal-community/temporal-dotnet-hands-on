@@ -67,11 +67,24 @@ public class LoanUnderwritingWorkflow
         //            (LoanUnderwritingActivities a) => a.PullCreditAsync(app),
         //            CreditOptions);
         //
-        //      Then CheckFraudAsync (DefaultOptions), then ScoreRiskAsync
-        //      (DefaultOptions), which takes both app and credit.
+        //      Then the other two. CheckFraudAsync returns a value you do not
+        //      need here, so you can simply await it without assigning:
+        //        await Workflow.ExecuteActivityAsync(
+        //            (LoanUnderwritingActivities a) => a.CheckFraudAsync(app),
+        //            DefaultOptions);
         //
-        //   d) Return an UnderwritingResult with Status "Underwritten", the
-        //      credit score, and the risk tier and rate.
+        //        var risk = await Workflow.ExecuteActivityAsync(
+        //            (LoanUnderwritingActivities a) => a.ScoreRiskAsync(app, credit),
+        //            DefaultOptions);
+        //
+        //   d) Return the result. The field names are in Models.cs:
+        //        return new UnderwritingResult(
+        //            ApplicationId: app.ApplicationId,
+        //            Status:        "Underwritten",
+        //            CreditScore:   credit.Score,
+        //            RiskTier:      risk.Tier,
+        //            ApprovedRate:  risk.ApprovedRate
+        //        );
         throw new NotImplementedException("TODO 2: implement RunAsync");
     }
 }
