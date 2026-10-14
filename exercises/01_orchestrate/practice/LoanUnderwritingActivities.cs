@@ -49,15 +49,29 @@ public class LoanUnderwritingActivities
 
     // TODO 2 — Implement CheckFraudAsync.
     //
-    // Call FraudService.ScreenAsync(app.ApplicantId) and return the result.
+    //   a) Call the service and await it. ScreenAsync returns Task<FraudCheck>;
+    //      awaiting it gives you the FraudCheck itself, so you can read its
+    //      fields:
+    //        var check = await FraudService.ScreenAsync(app.ApplicantId);
     //
-    // If the screen does NOT clear, that is a business decision, not a glitch.
-    // Retrying would burn attempts and reach the same answer, so throw a
-    // non-retryable failure and let the workflow fail fast:
+    //   b) If the screen did NOT clear, throw. A flagged applicant is a
+    //      business decision, not a glitch — retrying would burn attempts and
+    //      reach the same answer, so mark it non-retryable and let the
+    //      workflow fail fast:
+    //        if (!check.Cleared)
+    //            throw new ApplicationFailureException(
+    //                $"Fraud screen flagged application {app.ApplicationId}: {check.Signal}",
+    //                nonRetryable: true);
     //
-    //   throw new ApplicationFailureException(
-    //       $"Fraud screen flagged application {app.ApplicationId}: {check.Signal}",
-    //       nonRetryable: true);
+    //   c) Otherwise return the check:
+    //        return check;
+    //
+    // The two paths never collide: throw leaves the method immediately, so
+    // the return is only reached when the screen cleared.
+    //
+    // (In this lab the fraud service always clears, so the throw is the path
+    // you write but will not see. Flip Cleared to false in Services.cs if you
+    // want to watch a non-retryable failure stop the workflow dead.)
     [Activity]
     public async Task<FraudCheck> CheckFraudAsync(LoanApplication app)
     {
@@ -66,9 +80,17 @@ public class LoanUnderwritingActivities
 
     // TODO 3 — Implement ScoreRiskAsync.
     //
-    // Call RiskEngineService.ScoreAsync(credit.Score, app.RequestedAmount)
-    // and return the RiskAssessment. Log the resulting tier if you like —
-    // the logger comes from ActivityExecutionContext.Current.Logger.
+    // Same shape as TODO 2, minus the error case:
+    //
+    //   var assessment = await RiskEngineService.ScoreAsync(credit.Score, app.RequestedAmount);
+    //   return assessment;
+    //
+    // Optionally log the tier first — the logger comes from
+    // ActivityExecutionContext.Current.Logger:
+    //
+    //   logger.LogInformation(
+    //       "Risk scored for {ApplicationId}: tier {Tier}",
+    //       app.ApplicationId, assessment.Tier);
     [Activity]
     public async Task<RiskAssessment> ScoreRiskAsync(LoanApplication app, CreditReport credit)
     {

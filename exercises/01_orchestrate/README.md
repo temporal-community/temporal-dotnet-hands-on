@@ -49,7 +49,23 @@ A `Guid.NewGuid()` would change on every attempt and defeat the whole point.
 
 For the fraud check, a flagged applicant is a *business* outcome, not a
 transient error. Throw `ApplicationFailureException(..., nonRetryable: true)`
-so Temporal stops immediately instead of retrying toward the same answer.
+so Temporal stops immediately instead of retrying toward the same answer:
+
+```csharp
+var check = await FraudService.ScreenAsync(app.ApplicantId);
+
+if (!check.Cleared)
+    throw new ApplicationFailureException(
+        $"Fraud screen flagged application {app.ApplicationId}: {check.Signal}",
+        nonRetryable: true);
+
+return check;
+```
+
+Two things worth noticing. `ScreenAsync` returns `Task<FraudCheck>`, and
+`await` is what unwraps it into the `FraudCheck` whose fields you can read.
+And the throw and the return never collide — `throw` leaves the method
+immediately, so the `return` is only reached when the screen cleared.
 
 ---
 
